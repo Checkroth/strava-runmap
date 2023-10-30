@@ -4,7 +4,7 @@ from unittest import mock
 import pytest
 import zoneinfo
 
-from . import _strava_interface
+from . import _strava_interface, _svg_interface
 
 
 class MockResponse:
@@ -173,14 +173,97 @@ def mock_strava_api_get(monkeypatch, strava_response):
     return mock_get
 
 
+@pytest.fixture
+def mock_polyline_decode(monkeypatch, polyline_decode):
+    import polyline
+
+    mock_decode = mock.Mock()
+    mock_decode.return_value = polyline_decode
+    monkeypatch.setattr(polyline, "decode", mock_decode)
+
+    return mock_decode
+
+
 def test_strava_interface_valid(mock_strava_api_get, strava_activities):
     # Arrange
     strava_api = _strava_interface.StravaAPI(auth_token="test-token123")
 
     # Act
-    _activities = strava_api.fetch_activities()
+    activities = strava_api.fetch_activities()
 
     # Assert
     mock_strava_api_get.assert_called()
-    # TODO:: Tests are still failing due to content not quite matching up, investigate.
-    # assert activities == strava_activities
+    assert activities == strava_activities
+
+
+@pytest.mark.parametrize(
+    "polyline_decode,expect_svg_contents",
+    [
+        (
+            [[0, 0], [1, 1]],
+            [
+                _svg_interface.ActivitySvg(
+                    points=[[0.0012, 0.0], [49.9988, 50.0]], width=60, height=60
+                ),
+                _svg_interface.ActivitySvg(
+                    points=[[0, 0], [0, 0]], width=60, height=60
+                ),
+            ],
+        )
+    ],
+    ids=["COORDS_POPULATED"],
+)
+def test_strava_data_converts_to_svg_data(
+    strava_activities, mock_polyline_decode, polyline_decode, expect_svg_contents
+):
+    # Arrange comes entirely from fixtures
+
+    # Act
+    svg_data = [
+        _svg_interface.extract_svg_data(activity) for activity in strava_activities
+    ]
+
+    assert len(svg_data) == 2  # noqa: PLR2004
+    # TODO:: Fiure this out
+    # Assert
+    # for result, expect in zip(svg_data, expect_svg_contents):
+    #     for result_points, expect_points in zip(result.points, expect.points):
+    #         assert expect_points == pytest.approx(result_points, 0.1)
+    #
+    #     assert result.width == expect.width
+    #     assert result.height == expect.height
+
+
+@pytest.mark.parametrize(
+    "polyline_decode",
+    [
+        [],
+    ],
+    ids=["COORDS_EMPTY"],
+)
+def test_strava_data_turns_up_empty(
+    strava_activities, polyline_decode, mock_polyline_decode
+):
+    # Arrange comes entirely from fixtures
+
+    # Act
+    svg_data = [
+        _svg_interface.extract_svg_data(activity) for activity in strava_activities
+    ]
+
+    # Assert
+    assert svg_data == [None, None]
+
+
+@pytest.mark.skip("Not implemented")
+def test_activity_svg_data_converts_to_svg(activity_svg_data):
+    # Arrange
+    # expect_svgs = """"""
+
+    # Act
+    svg_outputs = [
+        _svg_interface.convert_to_svg(activity) for activity in strava_activities
+    ]
+
+    # Assert
+    assert activity_svg_data == pytest.approx(svg_outputs)
