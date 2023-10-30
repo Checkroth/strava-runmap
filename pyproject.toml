@@ -81,6 +81,9 @@ select = [
 
 ignore = [
   "D100",    # missing docstring in public module
+  "D101",    # missing docstring in public class
+  "D102",    # missing docstring in public method
+  "D103",    # missing docstring in public function
   "D104",    # missing docstring in public package
   "D203",    # blank line before class docstring
   "D213",    # multi-line docstring summary should start at the second line

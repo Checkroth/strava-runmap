@@ -1,1 +1,1 @@
-from .strava_runmap import *  # NOQA
+from .strava_runmap import *  # NOQA: F403
