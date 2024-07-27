@@ -2,6 +2,7 @@
 
 https://developers.strava.com/docs/reference/#api-Activities-getLoggedInAthleteActivities
 """
+
 import dataclasses
 from datetime import datetime
 

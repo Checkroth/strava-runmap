@@ -1,3 +1,3 @@
-requests==2.31.0
-pelican==4.8.0
+requests>=2.32
+pelican>=4.5
 polyline==2.0.1

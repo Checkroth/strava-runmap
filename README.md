@@ -1,7 +1,7 @@
 strava_runmap: A Plugin for Pelican
 ===================================
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/pelican-plugins/strava_runmap/main.yml?branch=main)](https://github.com/pelican-plugins/strava_runmap/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/pelican-plugins/strava_runmap/main.yml?branch=main)](https://github.com/Checkroth/strava-runmap/actions)
 [![PyPI Version](https://img.shields.io/pypi/v/pelican-strava_runmap)](https://pypi.org/project/pelican-strava_runmap/)
 [![Downloads](https://img.shields.io/pypi/dm/pelican-strava_runmap)](https://pypi.org/project/pelican-strava_runmap/)
 ![License](https://img.shields.io/pypi/l/pelican-strava_runmap?color=blue)
@@ -77,14 +77,16 @@ This can be done by cloning this repository somewhere locally and configuring yo
 
 ### Running Tests
 
-All changes should pass tests. Tests can be run
+All changes should pass tests. Tests can be run using pdm and invoke.
+
+Simply run `pdm run invoke tests`
 
 License
 -------
 
 This project is licensed under the AGPL-3.0 license.
 
-[existing issues]: https://github.com/pelican-plugins/strava_runmap/issues
+[existing issues]: https://github.com/Checkroth/strava-runmap/issues
 [Contributing to Pelican]: https://docs.getpelican.com/en/latest/contribute.html
 [Strava Guide]: https://developers.strava.com/docs/getting-started/#account
 [strava application page]: https://www.strava.com/settings/api
