@@ -6,6 +6,8 @@ import zoneinfo
 
 from . import _strava_interface, _svg_interface
 
+MIN_ALLOWED_FLOAT_DIFF = 0.0001
+
 
 class MockResponse:
     def __init__(self, response_data):
@@ -206,7 +208,7 @@ def test_strava_interface_valid(mock_strava_api_get, strava_activities):
                     points=[[0.0012, 0.0], [49.9988, 50.0]], width=60, height=60
                 ),
                 _svg_interface.ActivitySvg(
-                    points=[[0, 0], [0, 0]], width=60, height=60
+                    points=[[0.0012, 0.0], [49.9988, 50.0]], width=60, height=60
                 ),
             ],
         )
@@ -218,20 +220,21 @@ def test_strava_data_converts_to_svg_data(
 ):
     # Arrange comes entirely from fixtures
 
-    # Act
     svg_data = [
         _svg_interface.extract_svg_data(activity) for activity in strava_activities
     ]
 
-    assert len(svg_data) == 2  # noqa: PLR2004
-    # TODO:: Fiure this out
-    # Assert
-    # for result, expect in zip(svg_data, expect_svg_contents):
-    #     for result_points, expect_points in zip(result.points, expect.points):
-    #         assert expect_points == pytest.approx(result_points, 0.1)
-    #
-    #     assert result.width == expect.width
-    #     assert result.height == expect.height
+    for result, expect in zip(svg_data, expect_svg_contents):
+        for result_points, expect_points in zip(result.points, expect.points):
+            # assert expect_points == pytest.approx(result_points)
+            for i, result_point in enumerate(result_points):
+                # We don't care about the n-100th place,
+                #     if it smells right its good enough
+                diff = abs(result_point - expect_points[i])
+                assert diff <= MIN_ALLOWED_FLOAT_DIFF
+
+        assert result.width == expect.width
+        assert result.height == expect.height
 
 
 @pytest.mark.parametrize(
@@ -244,9 +247,6 @@ def test_strava_data_converts_to_svg_data(
 def test_strava_data_turns_up_empty(
     strava_activities, polyline_decode, mock_polyline_decode
 ):
-    # Arrange comes entirely from fixtures
-
-    # Act
     svg_data = [
         _svg_interface.extract_svg_data(activity) for activity in strava_activities
     ]
