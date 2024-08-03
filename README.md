@@ -8,6 +8,8 @@ strava_runmap: A Plugin for Pelican
 
 Hooks in to Strava API to create a page of all of your historical runs in strava.
 
+This repository has not yet been published to PyPI.
+
 ## Requirements
 
 This plugin requires the pacakges in `requiremnets.txt` to be installed in the pelican implementation that is using this plugin.
@@ -23,12 +25,16 @@ As long as you have not explicitly added a `PLUGINS` setting to your Pelican set
 
 ### Configuration
 
-Environment variables / pelican configs: The following are environment variables names. They have the _same key as the environment variable name_ in `STRAVA_RUNMAP_CONFIG` in the pelican config (e.g. `STRAVA_RUNMAP_CONFIG = { "STRAVA_API_TOKEN": "abcd1234" }`
-- `STRAVA_API_TOKEN`: a valid token is required to get activitiesto generate the runmap page.
-- `STRAVA_ENDPOINT`: Defaults to `https://www.strava.com`, but is configurable. If you configure it, it must be:
+Environment variables / pelican configs: The following are environment variables names. They have the _same key as the environment variable name_ in `STRAVA_RUNMAP` in the pelican config (e.g. `STRAVA_RUNMAP = { "STRAVA_API_TOKEN": "abcd1234" }`
+- `REFRESH_TOKEN`: a valid refresh token that can be used to authenticate with strava.
+- `CLIENT_SECRET`: The client secret for your strava app authentication.
+- `CLIENT_ID`: THe ID of your strava app. Used for authentication.
+- `ACTIVITIES_ENDPOINT`: Defaults to `https://www.strava.com/api/v3/activities`, but is configurable. If you configure it, it must be:
   - A valid url scheme (start with http(s)://)
   - Not end in a slash (the plugin adds the trailing `/`)
+- `AUTH_ENDPOINT`: Defaults to `https://www.strava.com/oauth/token`. The oauth endpoint for strava, if you want to test a mock or separate environment.
 - `STRAVA_DRY_RUN`: Evaluates to bool. Omit if it's not a dry run, fill it with anything if it is a dry run. Dry run fills with a few test images, but does not actually hit the strava API (use this if you haven't got a token yet or are repeatedly re-generating and want to speed things up and avoid getting rate-limited.)
+- `DATE_DISPLAY_FORMAT`: A valid string to pass in to the `strftime` function of a datetime object. Corresponds to the date display of each map in the runmap page.
 
 ### Setting up strava
 
