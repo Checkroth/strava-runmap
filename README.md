@@ -73,7 +73,8 @@ To start contributing to this plugin, review the [Contributing to Pelican] docum
 
 To test this pelican plugin with a pelican project locally, you will need to connect your local version of the plugin with your local pelical project.
 
-This can be done by cloning this repository somewhere locally and configuring your pelican projects to include `/path/to/strava-runmap/pelican/plugins` in the `PLUGIN_PATHS` setting.
+This can be done by cloning this repository somewhere locally and configuring your pelican projects to include `/path/to/strava-runmap/pelican/plugins` in the `PLUGIN_PATHS` setting, and `strava_runmap` in the 
+`PLUGINS` setting.
 
 ### Running Tests
 

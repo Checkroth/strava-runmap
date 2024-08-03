@@ -41,9 +41,9 @@ def lon2x(lon):
     return math.radians(lon) * EARTH_RADIUS_KM
 
 
-def convert_to_svg(activity_svg: ActivitySvg):
+def convert_to_svg(activity_svg: ActivitySvg) -> str:
     # {% for coords in svg.points %}{{ coords.0 }},{{ coords.1 }} {% endfor %}
-    points = " ".join(["{x},{y}" for (x, y) in activity_svg.points])
+    points = " ".join([f"{x},{y}" for (x, y) in activity_svg.points])
 
     return SVG_TEMPLATE.format(
         width=activity_svg.width, height=activity_svg.height, points=points
