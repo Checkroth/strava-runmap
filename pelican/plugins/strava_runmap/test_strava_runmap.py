@@ -152,6 +152,9 @@ def strava_activities() -> [_strava_interface.StravaRouteData]:
                 summary_polyline="er~hF}utzYm@`@URgCrAMHAFGFUNIDCA[RCFg@HQHK@Q@IEa@@QKGAYJQ?m@ESB[Ci@HYCu@Dk@AOGUHM@eAMC@g@SOMKC]SMCSSYSIKe@Kq@_@IAKBOCQIO?[BEES?}@Zs@N{A`@GAa@DMH_@Jy@Pa@NSBKGGUGq@GQAaB`@sEAQLu@Le@?a@Fe@AWBc@Ci@Fe@Cm@@YHGLE^@d@Kh@Sb@K~@i@fAc@v@c@^]x@_@`Am@l@[RED@ZW^ORQRIl@Q^E^@XEjAPXLn@Pr@Zr@Rf@XbAb@rAr@XJVLNBZP^JdAd@|Bb@RBRAf@F`@@RD~@D",
                 resource_state=2,
             ),
+            name="Morning Walk",
+            distance=3080.9,
+            moving_time=1620,
         ),
         _strava_interface.StravaRouteData(
             start_date_local=datetime(2023, 10, 29, 8, 6, 2),
@@ -161,6 +164,9 @@ def strava_activities() -> [_strava_interface.StravaRouteData]:
                 summary_polyline="_a~hFmjtzYO~@Uf@_@lAUdAS`@Yx@_@p@Sh@u@xAYZKRKV]p@SLCL?XGXKx@ChA@f@E`@Fr@A|@D^AVDh@CnAFxAAx@Dr@CbACD@d@D^CJW^AJFt@BHLJHPBtABd@Af@BbBE`B?lB@d@BJAVFj@Ev@Hz@@dBARDV@f@AzCJrF@vBAzADjAA`AEz@?TGn@[zAKb@]~@eArB{@~@c@l@_@Z}BhCa@ZOVOH]j@a@d@_C~BSDAVg@rAK\\In@OpBAnAH|@PfABt@N`AFr@CPGPc@Ze@Pm@b@kAn@uAbA{@h@e@\\{BzAg@`@UHMLc@VyAdAs@`@i@`@eAn@iATy@HcACi@@uAGOKES?IHq@Pi@Lk@@OPcAXoABa@Nm@h@iDh@aC\\iCPo@ZeBHoAB_ABS?WBc@CQAy@FwAAsBEMQgBWaBM{A[gBA]We@KeAWoAIu@Oy@QcBSqDGa@AmCBYDiCFo@@u@\\}AD[J[Jk@FgAJs@`@_CLcA@[HYLQFSDy@Hq@Lq@F_ALg@PwAHSTMDKFu@Mi@DM@YH]?GJm@JeADMLS@_@Ia@?]IaBE]UaAQwAW_AGk@W_AU{ASe@Ki@Ki@Ew@EQOSWiACi@?YKs@cAiCGk@Ia@SgBOk@CSO[Ke@Ca@FYEQKYC_@BkCNcB\\aCD_@BkAFy@BsAFaA?_BGkAM{AIe@S}AUeAUg@I]IOQo@Uq@CY_@u@O{@Yy@Qw@aAaCc@wAKk@]{@UkASk@AOIYAIa@kAYi@?IIOG]Sg@WaA}@yBm@aAiA_CAOBUDIf@Y`DaAHAVKb@GXKb@GjAc@r@O\\Oh@OxBaATK^Ir@_@hA_@^WLM^WbB}@RGl@EVQnAc@zBm@vDg@tA?\\CHBV@^GHEPALD^?LCv@Cp@D\\FlA?XDh@D@@@\\EfA@j@TnD?jALr@Dl@Lh@JPXlAf@v@bAjAd@^x@h@~@\\tBPZHb@Rh@Z^NLJNRRL|@t@n@V|@t@FLARMn@]jA[pBMrBMbAA|@I`AAtBKnBBr@?hAGzAIj@A~AFbAVjBCTBXADSDc@Aa@HKCq@JKAID",
                 resource_state=2,
             ),
+            name="First fasting run 💀",
+            distance=10520.3,
+            moving_time=4351,
         ),
     ]
 
@@ -187,13 +193,17 @@ def mock_polyline_decode(monkeypatch, polyline_decode):
 
 
 def test_strava_interface_valid(mock_strava_api_get, strava_activities):
-    # Arrange
-    strava_api = _strava_interface.StravaAPI(auth_token="test-token123")
+    strava_api = _strava_interface.StravaAPI(
+        client_settings={
+            "CLIENT_ID": "123",
+            "CLIENT_SECRET": "456",
+            "REFRESH_TOKEN": "abcd1234",
+        },
+        auth_token="test-token123",
+    )
 
-    # Act
     activities = strava_api.fetch_activities()
 
-    # Assert
     mock_strava_api_get.assert_called()
     assert activities == strava_activities
 

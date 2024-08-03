@@ -5,11 +5,10 @@ https://developers.strava.com/docs/reference/#api-Activities-getLoggedInAthleteA
 
 import dataclasses
 from datetime import datetime
+from decimal import Decimal
 
 import requests
 import zoneinfo
-
-from pelican import settings
 
 STRAVA_DT_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 DEFAULT_ACTIVITIES_ENDPOINT = "https://www.strava.com/api/v3/activities"
@@ -24,14 +23,13 @@ class StravaAPIMisconfigured(Exception):
         super().__init__(
             "Missing one of CLIENT_ID, CLIENT_SECRET, "
             "and AUTH_CODE in the STRAVA_RUNMAP pelican configuration."
-            )
+        )
 
 
 class StravaAPIError(Exception):
     def __init__(self, message: str):
         super().__init__(
-            "Encountered an error trying to communicate "
-            f"with Strava: {message}"
+            f"Encountered an error trying to communicate with Strava: {message}"
         )
 
 
@@ -60,8 +58,8 @@ class StravaRouteData:
 
     name: str
     # athlete: AthleteData
-    # distance: Decimal
-    # moving_time: int
+    distance: Decimal
+    moving_time: int
     # elapsed_time: int
     # total_elevation_gain: int
     # type: str
@@ -124,6 +122,9 @@ class StravaRouteData:
             ),
             timezone=zoneinfo.ZoneInfo(timezone),
             map=MapData(**map_data),
+            name=strava_response["name"],
+            distance=strava_response["distance"],
+            moving_time=strava_response["moving_time"],
         )
 
 
@@ -139,16 +140,18 @@ class StravaAPI:
     stored_auth_token: str
     client_id: str
     client_secret: str
-    auth_code: str
     refresh_token: str
+    dry_run: bool
 
-    def __init__(self, client_settings: str, auth_token: str | None = None):
+    def __init__(self, client_settings: dict[str, str], auth_token: str | None = None):
         self.client_id = client_settings["CLIENT_ID"]
         self.client_secret = client_settings["CLIENT_SECRET"]
-        self.auth_code = client_settings["AUTH_CODE"]
         self.refresh_token = client_settings["REFRESH_TOKEN"]
         self.stored_auth_token = auth_token
-        self.activities_endpoint = self.fetch_activities_endpoint()
+        self.activities_endpoint = (
+            client_settings.get("ACTIVITIES_ENDPOINT") or DEFAULT_ACTIVITIES_ENDPOINT
+        )
+        self.dry_run = bool(client_settings.get("STRAVA_DRY_RUN"))
 
     def get_auth_token(self) -> str:
         if self.stored_auth_token:
@@ -163,60 +166,24 @@ class StravaAPI:
                 "client_id": self.client_id,
                 "client_secret": self.client_secret,
                 "refresh_token": self.refresh_token,
-                "grant_type": "refresh_token"
-            }
-        )
-        breakpoint()
-        if not resp.ok:
-            raise StravaAuthorizationError(resp.content)
-
-        access_token = resp.json().get("access_token")
-        self.stored_auth_token = access_token
-        return access_token
-
-    def get_auth_token_depr(self) -> str:
-        if self.stored_auth_token:
-            return self.stored_auth_token
-
-        if not all([self.client_id, self.client_secret, self.auth_code]):
-            raise StravaAPIMisconfigured()
-
-        auth_endpoint = DEFAULT_AUTH_ENDPOINT
-        resp = requests.post(
-            auth_endpoint,
-            {
-                "client_id": self.client_id,
-                "client_secret": self.client_secret,
-                "code": self.auth_code,
-                "grant_type": "authorization_code",
+                "grant_type": "refresh_token",
             },
         )
-        breakpoint()
         if not resp.ok:
             raise StravaAuthorizationError(resp.content)
 
         access_token = resp.json().get("access_token")
         self.stored_auth_token = access_token
         return access_token
-
-    @classmethod
-    def fetch_activities_endpoint(cls) -> str:
-        pelican_settings = settings.read_settings()
-        activities_endpoint = pelican_settings.get(
-            "STRAVA_RUNMAP",
-            {},
-        ).get("ACTIVITIES_ENDPOINT")
-        if not activities_endpoint:
-            activities_endpoint = DEFAULT_ACTIVITIES_ENDPOINT
-        return activities_endpoint
 
     @property
     def auth_headers(self) -> dict[str, str]:
         return {"Authorization": f"Bearer {self.get_auth_token()}"}
 
     def fetch_activities(self) -> list[StravaRouteData]:
-        # Fetch a
         routes = []
+        if self.dry_run:
+            return routes
 
         def _fetch_from_strava(req_page: int = 1):
             run_url = f"{self.activities_endpoint}?page={req_page}"
